@@ -1,0 +1,15 @@
+.DS_Store
+/SourceApp/Resources
+/SourceApp/platform
+/SourceApp/i18n
+/TargetApp/Resources
+/TargetApp/platform
+/TargetApp/i18n
+build.log
+build
+npm-debug.log
+tmp
+.map
+.project
+.settings
+Thumbs.db

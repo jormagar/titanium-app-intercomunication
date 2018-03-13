@@ -1,0 +1,12 @@
+<Alloy>
+	<Window>
+		<View class="block">
+			<Label id="startActivity" class="button">START ACTIVITY</Label>
+			<Label id="startActivityForResult" class="button">START ACTIVITY FOR RESULT</Label>
+			<View class="result">
+				<Label class="title" />
+				<Label id="response" class="subtitle" />
+			</View>
+		</View>
+	</Window>
+</Alloy>

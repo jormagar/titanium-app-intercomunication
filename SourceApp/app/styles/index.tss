@@ -1,0 +1,58 @@
+".block" : {
+	left: 16,
+	right: 16,
+	bottom: 16,
+	width: Ti.UI.FILL,
+	height: Ti.UI.SIZE,
+	layout: "vertical"
+},
+".result" : {
+	top: 8,
+	width: Ti.UI.FILL,
+	height: Ti.UI.SIZE,
+	layout: "vertical",
+	borderRadius: 24,
+	backgroundColor: "#F2F2F2",
+	borderColor: "#464646"
+},
+".title" : {
+	left: 16,
+	right: 16,
+	bottom: 4,
+	top: 24,
+	width: Ti.UI.FILL,
+	height: 48,
+	text: "Result:",
+	font: {
+		fontSize: 16
+	},
+	color: "#464646"
+},
+".subtitle" : {
+	left: 16,
+	right: 16,
+	bottom: 24,
+	top: 4,
+	width: Ti.UI.FILL,
+	height: 48,
+	font: {
+		fontSize: 16
+	},
+	color: "#464646"
+},
+".button" : {
+	top: 8,
+	bottom: 8,
+	width: Ti.UI.FILL,
+	height: 48,
+	backgroundColor: "#876576",
+	font: {
+		fontSize: 16,
+		fontWeight: "bold"
+	},
+	color: "white",
+	textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
+	touchFeedback: true,
+	touchFeedbackColor: "#513c46",
+	borderRadius: 24
+}
