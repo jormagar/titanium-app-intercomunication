@@ -1,5 +1,5 @@
 <Alloy>
 	<Window class="container">
-		<Label id="label" onClick="doClick">FINISH</Label>
+		<Label id="back">BACK TO SOURCE APP</Label>
 	</Window>
 </Alloy>
