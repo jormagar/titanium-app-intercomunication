@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Definimos paleta de colores -->
+  <color name="primary_dark">#1e272e</color>
+  <color name="primary">#485460</color>
+  <color name="white">#FFFFFF</color>
+  <color name="white_dark">#d2dae2</color>
+  <color name="gray">#808e9b</color>
+  <color name="black">#1e272e</color>
+  <color name="black_light">#485460</color>
+  <color name="black_transparent">#991e272e</color>
+
+  <!--Definimos custom ActionBar-->
+  <style name="ActionBar.Custom" parent="@style/Widget.AppCompat.ActionBar.Solid">
+    <item name="elevation">0dp</item>
+    <item name="android:elevation">0dp</item>
+    <item name="android:windowContentOverlay">@null</item>
+  </style>
+
+  <!--Definimos tema de dialogo-->
+  <style name="Material.Dialog" parent="@style/Theme.AppCompat.Light.Dialog.Alert">
+    <item name="colorAccent">@color/primary</item>
+    <item name="colorControlNormal">@color/gray</item>
+    <item name="android:textColorPrimary">@color/primary</item>
+    <item name="textColorAlertDialogListItem">@color/primary</item>
+  </style>
+
+  <style name="Theme.Material" parent="@style/Theme.AppCompat">
+    <!--Status bar color-->
+    <item name="colorPrimaryDark">@color/primary_dark</item>
+    <!--Action bar color-->
+    <item name="colorPrimary">@color/primary</item>
+    <!-- Navigation bar color -->
+    <item name="android:navigationBarColor">@color/black</item>
+    <!--Status bar color-->
+    <item name="android:textColorPrimary">@color/white</item>
+    <!-- Es el color de un control cuando no está activo -->
+    <item name="colorControlNormal">@color/primary_dark</item>
+    <!-- Es el color de un control cuando está activo -->
+    <item name="colorControlActivated">@color/primary</item>
+    <!-- Es el color de un control cuando un usuario pincha en sobre él -->
+    <item name="colorControlHighlight">@color/primary_dark</item>
+    <!-- Es el color del scroll cuando llegamos al final de un scroll -->
+    <item name="android:colorEdgeEffect">@color/primary_dark</item>
+    <!-- Estilo action bar -->
+    <item name="actionBarStyle">@style/ActionBar.Custom</item>
+    <!-- Establecemos tema para los dialogos -->
+    <item name="alertDialogTheme">@style/Material.Dialog</item>
+    <!-- Establecemos color de activity indicator -->
+    <item name="android:indeterminateTint">@color/white</item>
+  </style>
+</resources>

@@ -1,0 +1,14 @@
+"ItemTemplate" : {
+  height: 48
+},
+".title" : {
+  left: 16,
+  right: 16,
+  width: Ti.UI.FILL,
+  height: Ti.UI.SIZE,
+  color: Alloy.CFG.color.gray,
+  font: {
+    fontSize: 16
+  },
+  minimumFontSize: 14
+}

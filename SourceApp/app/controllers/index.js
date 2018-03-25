@@ -6,36 +6,75 @@
 (function controller(args) {
   'use strict';
 
+  const TARGET = {
+    SCHEME: 'TargetApp://jormagar/',
+    CLASS_NAME: 'es.jormagar.target.TargetappActivity',
+    PACKAGE_NAME: 'es.jormagar.target'
+  };
+
+  const ActionManager = require('ActionManager');
+
+  ActionManager.addDependency('PackageManager', new (require('PackageManager'))());
+
+  ActionManager.addAction('startActivity', 'PackageManager', 'open');
+  ActionManager.addAction('startActivityForResult', 'PackageManager', 'openForResult');
+  ActionManager.addAction('startAppByScheme', 'PackageManager', 'openURLScheme');
+  ActionManager.addAction('updateMe', 'PackageManager', 'install');
+  ActionManager.addAction('uninstallMe', 'PackageManager', 'uninstall');
+  ActionManager.addAction('installTargetApp', 'PackageManager', 'install');
+  ActionManager.addAction('uninstallTargetApp', 'PackageManager', 'uninstall');
+
   /**
    * Add event handlers
    * @method addListener
    */
   (function addListener() {
-      ['startActivity', 'startActivityForResult'].forEach(function iterator(proxy) {
-      $.addListener($[proxy], 'click', onIntentClick);
-    });
+    $.addListener($.actions, 'itemclick', onActionClick);
+  })();
+
+  /**
+   * @method initController
+   */
+  (function initController() {
+    $.index.open();
   })();
 
   /**
    * It handles button click event
-   * @method onIntentClick
+   * @method onActionClick
    * @param  {object}      e
    */
-  function onIntentClick(e) {
-    Ti.API.info(JSON.stringify(e));
-    $[e.source.id]();
+  function onActionClick(e) {
+    const action = e.section.getItemAt(e.itemIndex).action.name;
+    ActionManager.execute(action, getActionParams(action));
+  }
+
+  function getActionParams(action) {
+    let params = [];
+
+    if(action === 'startActivity'){
+      let intent = Ti.Android.createIntent({
+        className: TARGET.CLASS_NAME,
+        packageName: TARGET.PACKAGE_NAME
+      });
+
+      intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
+      params.push(intent);
+      params.push(Ti.Android.currentActivity);
+    }
+
+    return params;
   }
 
   /**
    * Launch simple intent
    * @method startActivity
    */
-  $.startActivity = function () {
-    Ti.API.info('startActivity');
+  function startActivity() {
     //No action provided: DEFAULT_ACTION -> ACTION_VIEW
     const intent = Ti.Android.createIntent({
-      className: 'es.jormagar.target.TargetappActivity',
-      packageName: 'es.jormagar.target'
+      className: TARGET.CLASS_NAME,
+      packageName: TARGET.PACKAGE_NAME
     });
 
     intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
@@ -47,55 +86,56 @@
    * Launch simple intent
    * @method startActivity
    */
-  $.startActivityForResult = function () {
-    Ti.API.info('startActivityForResult');
+  function startActivityForResult() {
     const intent = Ti.Android.createIntent({
-      className: 'es.jormagar.target.TargetappActivity',
-      packageName: 'es.jormagar.target'
+      className: TARGET.CLASS_NAME,
+      packageName: TARGET.PACKAGE_NAME
     });
 
+    //This flag indicates we are waiting for a result
     intent.flags |= Ti.Android.FLAG_ACTIVITY_FORDWARD_RESULT;
+
     intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
 
-    $.response.setText('');
-
-    Ti.Android.currentActivity.startActivityForResult(intent, function (e) {
-      if (e.resultCode === Ti.Android.RESULT_OK) {
-        $.response.setText(e.intent.getStringExtra('response'));
-      } else {
-        $.response.setText('Fail: CODE ' + e.resultCode);
-      }
-    });
+    Ti.Android.currentActivity.startActivityForResult(intent, onActivityResult);
   }
 
-  $.index.open();
+  /**
+   * Launch simple intent
+   * @method startActivityByScheme
+   */
+  function startActivityByScheme() {
+    //No action provided: DEFAULT_ACTION -> ACTION_VIEW
+    Ti.Platform.openURL(TARGET.SCHEME + 'view');
+  };
+
+  /**
+   * Launch simple intent
+   * @method startActivityBySchemeForResult
+   */
+  function startActivityBySchemeForResult() {
+    Ti.Platform.openURL(TARGET.SCHEME + 'view');
+  }
+
+  /**
+   * Callback on activity result
+   * @method onActivityResult
+   * @param  {object}         e
+   */
+  function onActivityResult(e) {
+    let msg;
+
+    if (e.resultCode === Ti.Android.RESULT_OK) {
+      msg = 'Success with data: ' + e.intent.getStringExtra('response');
+    } else {
+      msg = 'Fail with code: ' + e.resultCode;
+    }
+
+    Ti.UI.createAlertDialog({
+      title: 'Result:',
+      message: msg,
+      ok: 'Ok'
+    }).show();
+  }
 
 })(arguments[0] || {});
-
-
-/*function openTarget(e) {
-  const intent = Ti.Android.createIntent({
-    className: 'es.jormagar.target.TargetappActivity',
-    packageName: 'es.jormagar.target',
-    type: 'text/plain',
-    action: Ti.Android.ACTION_SEND
-    //action: Ti.Android.ACTION_VIEW
-  });
-
-  //intent.flags |= Ti.Android.FLAG_ACTIVITY_CLEAR_TOP | Ti.Android.FLAG_ACTIVITY_NEW_TASK;
-  //intent.flags |= Ti.Android.FLAG_ACTIVITY_SINGLE_TOP | Ti.Android.FLAG_ACTIVITY_FORDWARD_RESULT;
-  //intent.flags |= Ti.Android.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Ti.Android.FLAG_ACTIVITY_SINGLE_TOP;
-  intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
-
-  //Establecemos los flags y añadimos los datos al intent
-  intent.putExtra('message', 'mensaje desde source app');
-
-  Ti.Android.currentActivity.startActivityForResult(intent, function (e) {
-    if (e.resultCode === Ti.Android.RESULT_OK) {
-      //La respuesta ha sido correcta y hemos recibido datos.
-      alert(e.intent.getStringExtra('message'));
-    } else {
-      alert('Result error');
-    }
-  });
-}*/

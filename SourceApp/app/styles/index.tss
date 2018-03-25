@@ -1,4 +1,61 @@
-".block" : {
+"Window" : {
+	backgroundColor: Alloy.CFG.color.white
+},
+"ListView" : {
+	top: -1,
+	zIndex: 2,
+	separatorColor: Alloy.CFG.color.white_dark
+},
+".header" : {
+	left: 16,
+	right: 16,
+	width: Ti.UI.FILL,
+	height: Ti.UI.SIZE,
+	layout: "vertical",
+	zIndex: 0
+},
+".mask" : {
+	backgroundColor: "#DDFFFFFF"
+},
+".logo" : {
+	width: 100,
+	height: 100,
+	font: {
+		fontFamily: "devicons",
+		fontSize: 80
+	},
+	color: Alloy.CFG.color.white,
+	text: "\ue696",
+	backgroundColor: Alloy.CFG.color.black_light,
+	borderRadius: 50,
+	textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+},
+".section-header" : {
+	width: Ti.UI.FILL,
+	height: Ti.UI.SIZE,
+	backgroundColor: "#22808e9b"
+},
+".section-header-title" : {
+	left: 16,
+	right: 16,
+	width: Ti.UI.FILL,
+	height: 56,
+	color: Alloy.CFG.color.black_light,
+	font: {
+		fontSize: "20"
+	}
+},
+".title" : {
+	top: 16,
+	textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
+	font: {
+		fontSize: 20,
+		fontWeight: "bold"
+	},
+	color: Alloy.CFG.color.black_light,
+	url: 'http://github.com/jormagar'
+},
+".container" : {
 	left: 16,
 	right: 16,
 	bottom: 16,
@@ -6,53 +63,18 @@
 	height: Ti.UI.SIZE,
 	layout: "vertical"
 },
-".result" : {
-	top: 8,
-	width: Ti.UI.FILL,
-	height: Ti.UI.SIZE,
-	layout: "vertical",
-	borderRadius: 24,
-	backgroundColor: "#F2F2F2",
-	borderColor: "#464646"
-},
-".title" : {
-	left: 16,
-	right: 16,
-	bottom: 4,
-	top: 24,
-	width: Ti.UI.FILL,
-	height: 48,
-	text: "Result:",
-	font: {
-		fontSize: 16
-	},
-	color: "#464646"
-},
-".subtitle" : {
-	left: 16,
-	right: 16,
-	bottom: 24,
-	top: 4,
-	width: Ti.UI.FILL,
-	height: 48,
-	font: {
-		fontSize: 16
-	},
-	color: "#464646"
-},
 ".button" : {
-	top: 8,
-	bottom: 8,
+	top: 16,
 	width: Ti.UI.FILL,
 	height: 48,
-	backgroundColor: "#876576",
+	backgroundColor: Alloy.CFG.color.white,
 	font: {
-		fontSize: 16,
-		fontWeight: "bold"
+		fontSize: 16
 	},
-	color: "white",
+	color: Alloy.CFG.color.gray_light,
 	textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
 	touchFeedback: true,
-	touchFeedbackColor: "#513c46",
-	borderRadius: 24
+	touchFeedbackColor: Alloy.CFG.color.white_dark,
+	borderRadius: 24,
+	borderColor: Alloy.CFG.color.gray_light
 }

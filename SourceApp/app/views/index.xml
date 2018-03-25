@@ -1,12 +1,36 @@
 <Alloy>
 	<Window>
-		<View class="block">
-			<Label id="startActivity" class="button">START ACTIVITY</Label>
-			<Label id="startActivityForResult" class="button">START ACTIVITY FOR RESULT</Label>
-			<View class="result">
-				<Label class="title" />
-				<Label id="response" class="subtitle" />
-			</View>
+		<View class="header">
+			<Label class="logo"/>
+			<Label id="link" class="title">github.com/jormagar</Label>
 		</View>
+		<View class="mask"/>
+		<ListView id="actions" defaultItemTemplate="action">
+			<Templates>
+				<Require src="templates/action"/>
+			</Templates>
+			<ListSection>
+				<HeaderView>
+					<View class="section-header">
+						<Label class="section-header-title" text="App Launcher"/>
+					</View>
+				</HeaderView>
+				<ListItem action:name="startActivity" action:text="Start target activity through intent" platform="android"/>
+				<ListItem action:name="startActivityForResult" action:text="Start target activity through intent and wait for result" platform="android"/>
+				<ListItem action:name="startAppByScheme" action:text="Start app using a url scheme"/>
+				<ListItem action:name="startAppBySchemeForResult" action:text="Start target by scheme for result"/>
+			</ListSection>
+			<ListSection platform="android">
+				<HeaderView>
+					<View class="section-header">
+						<Label class="section-header-title" text="Package Manager"/>
+					</View>
+				</HeaderView>
+				<ListItem action:name="updateMe" action:text="Update me"/>
+				<ListItem action:name="uninstallMe" action:text="Uninstall me"/>
+				<ListItem action:name="installTargetApp" action:text="Install target app"/>
+				<ListItem action:name="uninstallTargetApp" action:text="Uninstall target app"/>
+			</ListSection>
+		</ListView>
 	</Window>
 </Alloy>

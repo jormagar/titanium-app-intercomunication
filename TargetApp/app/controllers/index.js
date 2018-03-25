@@ -42,8 +42,8 @@ $.addListener($.index, 'androidback', onAndroidBack);
  * @returns {[type]}
  */
 function onAndroidBack(e) {
-  /*$.index.close();
-  Alloy.Globals.activity.finish();*/
+  $.index.close();
+  /*Alloy.Globals.activity.finish();*/
   /*if (backActivity){
   	Alloy.Globals.activity.finish();
   } else {

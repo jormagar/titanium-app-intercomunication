@@ -1,5 +1,21 @@
 {
-	"global": {},
+	"global": {
+		"color":{
+			"blue": "#575fcf",
+			"blue_dark": "#3c40c6",
+			"green": "#0be881",
+			"pink": "#ef5777",
+			"red": "#ff5e57",
+			"orange": "#ffc048",
+			"yellow": "#ffdd59",
+			"white": "#F6F6F6",
+			"white_dark": "#d2dae2",
+			"gray": "#808e9b",
+			"gray_light": "#7e8287",
+			"black": "#1e272e",
+			"black_light": "#485460"
+		}
+	},
 	"env:development": {},
 	"env:test": {},
 	"env:production": {},

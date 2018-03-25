@@ -1,0 +1,7 @@
+<Alloy>
+	<ItemTemplate name="action">
+		<View class="row">
+			<Label bindId="action" class="title"/>
+		</View>
+	</ItemTemplate>
+</Alloy>
