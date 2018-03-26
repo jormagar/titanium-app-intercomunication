@@ -7,14 +7,14 @@
   'use strict';
 
   const TARGET = {
-    SCHEME: 'TargetApp://jormagar/',
+    SCHEME: 'TargetApp://jormagar/?some=data',
     CLASS_NAME: 'es.jormagar.target.TargetappActivity',
     PACKAGE_NAME: 'es.jormagar.target'
   };
 
   const ActionManager = require('ActionManager');
 
-  ActionManager.addDependency('PackageManager', new (require('PackageManager'))());
+  ActionManager.addDependency('PackageManager', new(require('PackageManager'))());
 
   ActionManager.addAction('startActivity', 'PackageManager', 'open');
   ActionManager.addAction('startActivityForResult', 'PackageManager', 'openForResult');
@@ -50,71 +50,42 @@
   }
 
   function getActionParams(action) {
-    let params = [];
+    let params = [],
+      intent;
 
-    if(action === 'startActivity'){
-      let intent = Ti.Android.createIntent({
-        className: TARGET.CLASS_NAME,
-        packageName: TARGET.PACKAGE_NAME
-      });
-
-      intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
-      params.push(intent);
+    if (action === 'startActivity') {
+      params.push(TARGET.PACKAGE_NAME);
       params.push(Ti.Android.currentActivity);
+    } else if (action === 'startActivityForResult') {
+      params.push(TARGET.PACKAGE_NAME);
+      params.push(Ti.Android.currentActivity);
+      params.push(onActivityResult);
+    } else if (action === 'startAppByScheme') {
+      params.push(TARGET.SCHEME);
+    } else if (action === 'updateMe') {
+      params.push(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, '/apk/SourceApp.apk').nativePath);
+      params.push(Ti.Android.currentActivity);
+      params.push(onActivityResult);
+    } else if (action === 'uninstallMe') {
+      params.push(Ti.App.getId());
+      params.push(Ti.Android.currentActivity);
+      params.push(onActivityResult);
+    } else if (action === 'installTargetApp'){
+      var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'apk/TargetApp.apk');
+      var ft = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'TargetApp.apk');
+      ft.write(f.read());
+
+      Ti.API.info(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'apk/TargetApp.apk').nativePath);
+      params.push(ft.nativePath);
+      params.push(Ti.Android.currentActivity);
+      params.push(onActivityResult);
+    } else if (action === 'uninstallTargetApp'){
+      params.push(TARGET.PACKAGE_NAME);
+      params.push(Ti.Android.currentActivity);
+      params.push(onActivityResult);
     }
 
     return params;
-  }
-
-  /**
-   * Launch simple intent
-   * @method startActivity
-   */
-  function startActivity() {
-    //No action provided: DEFAULT_ACTION -> ACTION_VIEW
-    const intent = Ti.Android.createIntent({
-      className: TARGET.CLASS_NAME,
-      packageName: TARGET.PACKAGE_NAME
-    });
-
-    intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
-
-    Ti.Android.currentActivity.startActivity(intent);
-  };
-
-  /**
-   * Launch simple intent
-   * @method startActivity
-   */
-  function startActivityForResult() {
-    const intent = Ti.Android.createIntent({
-      className: TARGET.CLASS_NAME,
-      packageName: TARGET.PACKAGE_NAME
-    });
-
-    //This flag indicates we are waiting for a result
-    intent.flags |= Ti.Android.FLAG_ACTIVITY_FORDWARD_RESULT;
-
-    intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
-
-    Ti.Android.currentActivity.startActivityForResult(intent, onActivityResult);
-  }
-
-  /**
-   * Launch simple intent
-   * @method startActivityByScheme
-   */
-  function startActivityByScheme() {
-    //No action provided: DEFAULT_ACTION -> ACTION_VIEW
-    Ti.Platform.openURL(TARGET.SCHEME + 'view');
-  };
-
-  /**
-   * Launch simple intent
-   * @method startActivityBySchemeForResult
-   */
-  function startActivityBySchemeForResult() {
-    Ti.Platform.openURL(TARGET.SCHEME + 'view');
   }
 
   /**

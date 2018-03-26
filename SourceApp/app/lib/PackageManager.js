@@ -9,32 +9,33 @@
 
 module.exports = (function () {
 
+  const ANDROID = Ti.Platform.osname === 'android';
+  const IOS = Ti.Platform.osname === 'ios';
+  const CONSTANTS = {
+    EXTRA_RETURN_RESULT: 'android.intent.extra.RETURN_RESULT',
+    PACKAGE_MIME_TYPE: 'application/vnd.android.package-archive',
+    ACTION_INSTALL_PACKAGE: 'android.intent.action.INSTALL_PACKAGE',
+    ACTION_UNINSTALL_PACKAGE: 'android.intent.action.UNINSTALL_PACKAGE',
+    PACKAGE_SCHEME: 'package:',
+    FIND_SUFFIX: ':///find'
+  };
+  let Android;
+
+  if (ANDROID) {
+    Android = {
+      Activity: require('android.app.Activity'),
+      Intent: require('android.content.Intent'),
+      Uri: require('android.net.Uri'),
+      PackageManager: require('android.content.pm.PackageManager')
+    };
+  }
 
   /**
    * PackageManager Constructor
    * @method      PackageManager
    * @constructor
    */
-  function PackageManager() {
-    this.ANDROID = Ti.Platform.osname === 'android';
-    this.IOS = Ti.Platform.osname === 'ios';
-    this.CONSTANTS = {
-      EXTRA_RETURN_RESULT: 'android.intent.extra.RETURN_RESULT',
-      ACTION_INSTALL_PACKAGE: 'android.intent.action.INSTALL_PACKAGE',
-      ACTION_UNINSTALL_PACKAGE: 'android.intent.action.UNINSTALL_PACKAGE',
-      PACKAGE_SCHEME: 'package:',
-      FIND_SUFFIX: ':///find'
-    };
-
-    if (Ti.Platform.osname === 'android') {
-      this.Android = {
-        Activity: require('android.app.Activity'),
-        Intent: require('android.content.Intent'),
-        Uri: require('android.net.Uri'),
-        PackageManager: require('android.content.pm.PackageManager')
-      }
-    }
-  }
+  function PackageManager() {}
 
   /**
    * Check if a package is installed
@@ -43,7 +44,7 @@ module.exports = (function () {
    * @returns {boolean}
    */
   PackageManager.prototype.isPackageInstalled = function (packageName, activity) {
-    if (!this.ANDROID) {
+    if (ANDROID) {
       throw new Error('PackageManager.isPackageInstalled: Only available for Android platform');
     }
 
@@ -60,7 +61,7 @@ module.exports = (function () {
     let isInstalled = true;
 
     try {
-      let packageInfo = pm.getPackageInfo(packageName, this.Android.PackageManager.GET_ACTIVITIES);
+      let packageInfo = pm.getPackageInfo(packageName, Android.PackageManager.GET_ACTIVITIES);
     } catch (e) {
       Ti.API.info('PackageManager_Error: Package name <' + packageName + '> not found');
       isInstalled = false;
@@ -76,8 +77,8 @@ module.exports = (function () {
    * @returns {boolean}
    */
   PackageManager.prototype.open = function (packageName, activity) {
-    Ti.API.info('TEKO: ' + JSON.stringify(this));
-    if (!PackageManager.ANDROID) {
+
+    if (!ANDROID) {
       throw new Error('PackageManager.open: Only available for Android platform');
     }
 
@@ -89,11 +90,11 @@ module.exports = (function () {
       throw new Error('PackageManager.open: No activity provided, please provide valid activity');
     }
 
-    const launcherActivity = (new this.Android.Activity(activity));
+    let isLaunched = false;
+
+    const launcherActivity = (new Android.Activity(activity));
     const pm = launcherActivity.getPackageManager();
     const launchIntent = pm.getLaunchIntentForPackage(packageName);
-
-    let isLaunched = false;
 
     if (launchIntent !== null) {
       isLaunched = true;
@@ -127,7 +128,20 @@ module.exports = (function () {
       throw new Error('PackageManager.open: No onActivityResult callback provided');
     }
 
-    Ti.API.info('open for result');
+    const launcherActivity = (new Android.Activity(activity));
+    const pm = launcherActivity.getPackageManager();
+    const launchIntent = pm.getLaunchIntentForPackage(packageName);
+
+    const intent = Ti.Android.createIntent({
+      className: launchIntent.getComponent().getClassName(),
+      packageName: packageName
+    });
+
+    //This flag indicates we are waiting for a result
+    intent.flags |= Ti.Android.FLAG_ACTIVITY_FORDWARD_RESULT;
+    intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
+
+    activity.startActivityForResult(intent, onActivityResult);
   };
 
   /**
@@ -199,24 +213,38 @@ module.exports = (function () {
   /**
    * Install package
    * @method install
-   * @param   {string} packageName
+   * @param   {string} nativePath
    * @param   {object} activity
    * @param   {function} onActivityResult
    */
-  PackageManager.prototype.install = function (packageName, activity, onActivityResult) {
+  PackageManager.prototype.install = function (nativePath, activity, onActivityResult) {
     if (!ANDROID) {
-      throw new Error('PackageManager.uninstall: Only available for Android platform');
+      throw new Error('PackageManager.install: Only available for Android platform');
     }
 
-    if (!packageName) {
-      throw new Error('PackageManager.uninstall: No package name provided, please provide valid package name');
+    if (!nativePath) {
+      throw new Error('PackageManager.install: No native path to file provided, please provide valid path');
     }
 
     if (!activity) {
       throw new Error('PackageManager.uninstall: No activity provided, please provide valid activity');
     }
 
-    this.manage(CONSTANTS.ACTION_INSTALL_PACKAGE, packageName, activity, onActivityResult);
+    //this.manage(CONSTANTS.ACTION_INSTALL_PACKAGE, packageName, activity, onActivityResult);
+
+    const intent = Ti.Android.createIntent({
+      action: CONSTANTS.ACTION_INSTALL_PACKAGE,
+      data: nativePath,
+      type: CONSTANTS.PACKAGE_MIME_TYPE
+    });
+
+    if (onActivityResult) {
+      //If we are waiting for action result it returns this value as result code
+      intent.putExtra(CONSTANTS.EXTRA_RETURN_RESULT, true);
+      activity.startActivityForResult(intent, onActivityResult);
+    } else {
+      activity.startActivity(intent);
+    }
   };
 
   /**
@@ -239,7 +267,20 @@ module.exports = (function () {
       throw new Error('PackageManager.uninstall: No activity provided, please provide valid activity');
     }
 
-    this.manage(CONSTANTS.ACTION_UNINSTALL_PACKAGE, packageName, activity, onActivityResult);
+    //this.manage(CONSTANTS.ACTION_UNINSTALL_PACKAGE, packageName, activity, onActivityResult);
+
+    const intent = Ti.Android.createIntent({
+      action: CONSTANTS.ACTION_UNINSTALL_PACKAGE,
+      data: CONSTANTS.PACKAGE_SCHEME + packageName
+    });
+
+    if (onActivityResult) {
+      //If we are waiting for action result it returns this value as result code
+      intent.putExtra(CONSTANTS.EXTRA_RETURN_RESULT, true);
+      activity.startActivityForResult(intent, onActivityResult);
+    } else {
+      activity.startActivity(intent);
+    }
   };
 
   /**
