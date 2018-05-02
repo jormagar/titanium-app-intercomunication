@@ -3,14 +3,16 @@
  * @author Jorge Macías García
  * @copyright Universitat Politècnica de València (c) 2018
  * @module PackageManager
+ * @version 1.0.0
  */
 
 'use strict';
 
 module.exports = (function () {
 
-  const ANDROID = Ti.Platform.osname === 'android';
-  const IOS = Ti.Platform.osname === 'ios';
+  const ANDROID = (Ti.Platform.osname === 'android');
+  const IOS = (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad');
+
   const CONSTANTS = {
     EXTRA_RETURN_RESULT: 'android.intent.extra.RETURN_RESULT',
     PACKAGE_MIME_TYPE: 'application/vnd.android.package-archive',
@@ -44,7 +46,7 @@ module.exports = (function () {
    * @returns {boolean}
    */
   PackageManager.prototype.isPackageInstalled = function (packageName, activity) {
-    if (ANDROID) {
+    if (!ANDROID) {
       throw new Error('PackageManager.isPackageInstalled: Only available for Android platform');
     }
 
@@ -56,14 +58,14 @@ module.exports = (function () {
       throw new Error('PackageManager.isPackageInstalled: No activity provided, please provide valid activity');
     }
 
-    const pm = (new this.Android.Activity(activity)).getPackageManager();
+    const pm = (new Android.Activity(activity)).getPackageManager();
 
     let isInstalled = true;
 
     try {
       let packageInfo = pm.getPackageInfo(packageName, Android.PackageManager.GET_ACTIVITIES);
     } catch (e) {
-      Ti.API.info('PackageManager_Error: Package name <' + packageName + '> not found');
+      Ti.API.debug('PackageManager_Error: Package name <' + packageName + '> not found');
       isInstalled = false;
     }
 
@@ -145,14 +147,14 @@ module.exports = (function () {
   };
 
   /**
-   * Open the package package with the provided url scheme
-   * @method openURLScheme
+   * Open the package with the provided url
+   * @method openURL
    * @param   {string} uri
    * @returns {boolean}
    */
-  PackageManager.prototype.openURLScheme = function (uri) {
+  PackageManager.prototype.openURL = function (uri) {
     if (!uri) {
-      throw new Error('PackageManager.openURLScheme: No uri provided');
+      throw new Error('PackageManager.openURL: No uri provided');
     }
     //It returns false for Android devices if can't open url
     return Ti.Platform.openURL(uri);
@@ -165,19 +167,25 @@ module.exports = (function () {
    * @param   {object} activity
    * @returns {boolean}
    */
-  PackageManager.prototype.canOpenURLScheme = function (scheme, activity) {
+  PackageManager.prototype.canOpenScheme = function (scheme, activity) {
+
     if (ANDROID && !activity) {
-      throw new Error('PackageManager.canOpenURLScheme: No activity provided, please provide valid activity');
+      throw new Error('PackageManager.canOpenURL: No activity provided, please provide a valid activity');
     }
 
     if (!scheme) {
-      throw new Error('PackageManager.canOpenURLScheme: No scheme provided');
+      throw new Error('PackageManager.canOpenURL: No scheme provided');
+    }
+
+    //Check if scheme is well formed
+    if (scheme.indexOf('://') != -1) {
+      throw new Error('PackageManager.canOpenURL: Provide only scheme without [://]');
     }
 
     let result;
 
     if (ANDROID) {
-      result = this.canOpenAndroidScheme(scheme);
+      result = this.canOpenAndroidScheme(scheme, activity);
     } else if (IOS) {
       result = this.canOpenIOSScheme(scheme);
     }
@@ -187,12 +195,12 @@ module.exports = (function () {
 
   /**
    * Check if URI scheme is available on Android
-   * @method canOpenSchemeOnAndroid
+   * @method canOpenAndroidScheme
    * @param   {string} scheme
    * @param   {object} activity
    * @returns {boolean}
    */
-  PackageManager.prototype.canOpenSchemeOnAndroid = function (scheme, activity) {
+  PackageManager.prototype.canOpenAndroidScheme = function (scheme, activity) {
     const pm = (new Android.Activity(activity)).getPackageManager();
     const uri = scheme + CONSTANTS.FIND_SUFFIX;
     const intent = new Android.Intent(Android.Intent.ACTION_VIEW, Android.Uri.parse(uri));
@@ -202,12 +210,12 @@ module.exports = (function () {
 
   /**
    * Check if URI scheme is available on iOS
-   * @method canOpenSchemeOnIOS
+   * @method canOpenIOSScheme
    * @param   {string} scheme
    * @returns {boolean}
    */
-  PackageManager.prototype.canOpenSchemeOnIOS = function (scheme) {
-    return Ti.Platform.canOpenURL(scheme);
+  PackageManager.prototype.canOpenIOSScheme = function (scheme) {
+    return Ti.Platform.canOpenURL(scheme+='://');
   };
 
   /**
@@ -267,15 +275,13 @@ module.exports = (function () {
       throw new Error('PackageManager.uninstall: No activity provided, please provide valid activity');
     }
 
-    //this.manage(CONSTANTS.ACTION_UNINSTALL_PACKAGE, packageName, activity, onActivityResult);
-
     const intent = Ti.Android.createIntent({
       action: CONSTANTS.ACTION_UNINSTALL_PACKAGE,
       data: CONSTANTS.PACKAGE_SCHEME + packageName
     });
 
     if (onActivityResult) {
-      //If we are waiting for action result it returns this value as result code
+      //If we are waiting for the result code we need to add this extra flag
       intent.putExtra(CONSTANTS.EXTRA_RETURN_RESULT, true);
       activity.startActivityForResult(intent, onActivityResult);
     } else {

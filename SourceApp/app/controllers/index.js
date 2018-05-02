@@ -14,11 +14,13 @@
 
   const ActionManager = require('ActionManager');
 
+  //Add dependency (dependencyName, object)
   ActionManager.addDependency('PackageManager', new(require('PackageManager'))());
 
+  //Add action (actionName, dependency, dependency function)
   ActionManager.addAction('startActivity', 'PackageManager', 'open');
   ActionManager.addAction('startActivityForResult', 'PackageManager', 'openForResult');
-  ActionManager.addAction('startAppByScheme', 'PackageManager', 'openURLScheme');
+  ActionManager.addAction('startAppByScheme', 'PackageManager', 'openURL');
   ActionManager.addAction('updateMe', 'PackageManager', 'install');
   ActionManager.addAction('uninstallMe', 'PackageManager', 'uninstall');
   ActionManager.addAction('installTargetApp', 'PackageManager', 'install');
@@ -75,7 +77,7 @@
       var ft = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'TargetApp.apk');
       ft.write(f.read());
 
-      Ti.API.info(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'apk/TargetApp.apk').nativePath);
+      Ti.API.info(f.nativePath);
       params.push(ft.nativePath);
       params.push(Ti.Android.currentActivity);
       params.push(onActivityResult);
