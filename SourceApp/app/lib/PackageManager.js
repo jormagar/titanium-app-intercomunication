@@ -78,7 +78,7 @@ module.exports = (function () {
    * @param   {string} packageName
    * @returns {boolean}
    */
-  PackageManager.prototype.open = function (packageName, activity) {
+  PackageManager.prototype.open = function (packageName, activity, params = {}) {
 
     if (!ANDROID) {
       throw new Error('PackageManager.open: Only available for Android platform');
@@ -100,6 +100,12 @@ module.exports = (function () {
 
     if (launchIntent !== null) {
       isLaunched = true;
+
+      //If params put extra
+      Object.keys(params).forEach(function(key){
+        launchIntent.putExtra(key, params[key]);
+      });
+      
       launcherActivity.startActivity(launchIntent);
     }
 
@@ -111,9 +117,10 @@ module.exports = (function () {
    * @method openForResult
    * @param   {string} packageName
    * @param {object} activity
+   * @param {object} params
    * @param  {function} onActivityResult
    */
-  PackageManager.prototype.openForResult = function (packageName, activity, onActivityResult) {
+  PackageManager.prototype.openForResult = function (packageName, activity, params = {}, onActivityResult) {
     if (!ANDROID) {
       throw new Error('PackageManager.open: Only available for Android platform');
     }
@@ -142,6 +149,11 @@ module.exports = (function () {
     //This flag indicates we are waiting for a result
     intent.flags |= Ti.Android.FLAG_ACTIVITY_FORDWARD_RESULT;
     intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
+
+    //If params put extra
+    Object.keys(params).forEach(function(key){
+      intent.putExtra(key, params[key]);
+    });
 
     activity.startActivityForResult(intent, onActivityResult);
   };
