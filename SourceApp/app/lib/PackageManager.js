@@ -43,6 +43,7 @@ module.exports = (function () {
    * Check if a package is installed
    * @method isPackageInstalled
    * @param   {string} packageName
+   * @param   {object} activity
    * @returns {boolean}
    */
   PackageManager.prototype.isPackageInstalled = function (packageName, activity) {
@@ -76,6 +77,8 @@ module.exports = (function () {
    * Open the provided package
    * @method open
    * @param   {string} packageName
+   * @param   {object} activity
+   * @param   {object} params
    * @returns {boolean}
    */
   PackageManager.prototype.open = function (packageName, activity, params = {}) {
@@ -98,16 +101,18 @@ module.exports = (function () {
     const pm = launcherActivity.getPackageManager();
     const launchIntent = pm.getLaunchIntentForPackage(packageName);
 
-    if (launchIntent !== null) {
-      isLaunched = true;
-
-      //If params put extra
-      Object.keys(params).forEach(function(key){
-        launchIntent.putExtra(key, params[key]);
-      });
-      
-      launcherActivity.startActivity(launchIntent);
+    if (!launchIntent) {
+      throw new Error('PackageManager.open: Package ' + packageName + ' not found in your device');
     }
+
+    isLaunched = true;
+
+    //If params put extra
+    Object.keys(params).forEach(function (key) {
+      launchIntent.putExtra(key, params[key]);
+    });
+
+    launcherActivity.startActivity(launchIntent);
 
     return isLaunched;
   };
@@ -115,12 +120,13 @@ module.exports = (function () {
   /**
    * Open the provided package and wait for result
    * @method openForResult
-   * @param   {string} packageName
+   * @param  {string} packageName
+   * @param  {string} className
    * @param {object} activity
    * @param {object} params
    * @param  {function} onActivityResult
    */
-  PackageManager.prototype.openForResult = function (packageName, activity, params = {}, onActivityResult) {
+  PackageManager.prototype.openForResult = function (packageName, className = null, activity, params = {}, onActivityResult) {
     if (!ANDROID) {
       throw new Error('PackageManager.open: Only available for Android platform');
     }
@@ -139,10 +145,18 @@ module.exports = (function () {
 
     const launcherActivity = (new Android.Activity(activity));
     const pm = launcherActivity.getPackageManager();
-    const launchIntent = pm.getLaunchIntentForPackage(packageName);
+    let launchIntent = null;
+
+    if (!className) {
+      launchIntent = pm.getLaunchIntentForPackage(packageName);
+
+      if (!launchIntent) {
+        throw new Error('PackageManager.openForResult: Package ' + packageName + ' not found in your device');
+      }
+    }
 
     const intent = Ti.Android.createIntent({
-      className: launchIntent.getComponent().getClassName(),
+      className: className || launchIntent.getComponent().getClassName(),
       packageName: packageName
     });
 
@@ -151,7 +165,7 @@ module.exports = (function () {
     intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
 
     //If params put extra
-    Object.keys(params).forEach(function(key){
+    Object.keys(params).forEach(function (key) {
       intent.putExtra(key, params[key]);
     });
 
@@ -190,7 +204,7 @@ module.exports = (function () {
     }
 
     //Check if scheme is well formed
-    if (scheme.indexOf('://') != -1) {
+    if (scheme.indexOf('://') !== -1) {
       throw new Error('PackageManager.canOpenURL: Provide only scheme without [://]');
     }
 
@@ -227,7 +241,7 @@ module.exports = (function () {
    * @returns {boolean}
    */
   PackageManager.prototype.canOpenIOSScheme = function (scheme) {
-    return Ti.Platform.canOpenURL(scheme+='://');
+    return Ti.Platform.canOpenURL(scheme += '://');
   };
 
   /**

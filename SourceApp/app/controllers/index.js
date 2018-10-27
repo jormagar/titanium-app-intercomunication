@@ -35,6 +35,7 @@
   })();
 
   /**
+   * Initialize controller
    * @method initController
    */
   (function initController() {
@@ -49,45 +50,6 @@
   function onActionClick(e) {
     const action = e.section.getItemAt(e.itemIndex).action.name;
     ActionManager.execute(action, getActionParams(action));
-  }
-
-  function getActionParams(action) {
-    let params = [],
-      intent;
-
-    if (action === 'startActivity') {
-      params.push(TARGET.PACKAGE_NAME);
-      params.push(Ti.Android.currentActivity);
-    } else if (action === 'startActivityForResult') {
-      params.push(TARGET.PACKAGE_NAME);
-      params.push(Ti.Android.currentActivity);
-      params.push(onActivityResult);
-    } else if (action === 'startAppByScheme') {
-      params.push(TARGET.SCHEME);
-    } else if (action === 'updateMe') {
-      params.push(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, '/apk/SourceApp.apk').nativePath);
-      params.push(Ti.Android.currentActivity);
-      params.push(onActivityResult);
-    } else if (action === 'uninstallMe') {
-      params.push(Ti.App.getId());
-      params.push(Ti.Android.currentActivity);
-      params.push(onActivityResult);
-    } else if (action === 'installTargetApp'){
-      var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'apk/TargetApp.apk');
-      var ft = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'TargetApp.apk');
-      ft.write(f.read());
-
-      Ti.API.info(f.nativePath);
-      params.push(ft.nativePath);
-      params.push(Ti.Android.currentActivity);
-      params.push(onActivityResult);
-    } else if (action === 'uninstallTargetApp'){
-      params.push(TARGET.PACKAGE_NAME);
-      params.push(Ti.Android.currentActivity);
-      params.push(onActivityResult);
-    }
-
-    return params;
   }
 
   /**
@@ -109,6 +71,63 @@
       message: msg,
       ok: 'Ok'
     }).show();
+  }
+
+  /**
+   * Prepare action params before execute
+   * @method getActionParams
+   * @param  {string}        action
+   * @return {object} params Param list
+   */
+  function getActionParams(action) {
+    let params,
+      intent;
+
+    switch (action) {
+      case 'startActivity':
+        params = [TARGET.PACKAGE_NAME, $.index.activity];
+        break;
+
+      case 'startActivityForResult':
+        let extras = {
+          name: 'John',
+          surname: 'Doe'
+        };
+        params = [TARGET.PACKAGE_NAME, TARGET.CLASS_NAME, $.index.activity, extras, onActivityResult];
+        break;
+
+      case 'startAppByScheme':
+        params = [TARGET.SCHEME];
+        break;
+
+      case 'updateMe':
+        let path = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, '/apk/SourceApp.apk').nativePath;
+        params = [path, $.index.activity, onActivityResult];
+        break;
+
+      case 'uninstallMe':
+        params = [Ti.App.getId(), $.index.activity, onActivityResult];
+        break;
+
+      case 'installTargetApp':
+        let f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, '/apk/TargetApp.apk');
+        let ft = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'TargetApp.apk');
+
+        ft.write(f.read());
+
+        params = [ft.nativePath, $.index.activity, onActivityResult];
+        break;
+
+      case 'uninstallTargetApp':
+        params = [TARGET.PACKAGE_NAME, $.index.activity, onActivityResult];
+        break;
+
+      default:
+        params = [];
+        break;
+    }
+
+    return params;
   }
 
 })(arguments[0] || {});
