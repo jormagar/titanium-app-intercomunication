@@ -61,7 +61,8 @@
     Ti.API.debug('backToSourceApp');
     //Uncomment to get window activity, backActivity
     //has the activity incoming in the newintent
-    //backActivity = $.index.activity;
+    backActivity = $.index.activity;
+
     Ti.API.debug('Back Activity: ' + backActivity);
 
     if (backActivity) {
@@ -74,13 +75,13 @@
 
       backIntent.putExtra('response', 'Back intent from Target App');
 
-      //Finishes the activity but no data returned to APP SOURCe
-      $.index.activity.setResult(Ti.Android.RESULT_OK, backIntent);
-      $.index.activity.finish();
+      //If backActivity = window activity
+      //It finishes but no result and data returned to APP SOURCE
 
-      //This doesn't finishes the app
-      //backActivity.setResult(Ti.Android.RESULT_OK, backIntent);
-      //backActivity.finish();
+      //If backActivity = e.source (newintent)
+      //It doesn't finishes the app
+      backActivity.setResult(Ti.Android.RESULT_OK, backIntent);
+      backActivity.finish();
 
       Ti.API.debug('Activity finished');
     }
