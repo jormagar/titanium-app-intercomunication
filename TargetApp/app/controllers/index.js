@@ -8,9 +8,9 @@
 
   let backActivity;
 
-  const interval = setInterval(function () {
+  /*const interval = setInterval(function () {
     Ti.API.debug(Date.now() + ' backActivity value: ' + backActivity);
-  }, 250);
+  }, 250);*/
 
   /**
    * Add event handlers
@@ -38,7 +38,7 @@
    * @param   {object} e
    */
   function onClose(e) {
-    clearInterval(interval);
+    //clearInterval(interval);
   }
   /**
    * On new intent
@@ -73,8 +73,12 @@
       });
 
       backIntent.putExtra('response', 'Back intent from Target App');
+
+      //Finishes the activity but no data returned to APP SOURCe
       $.index.activity.setResult(Ti.Android.RESULT_OK, backIntent);
       $.index.activity.finish();
+
+      //This doesn't finishes the app
       //backActivity.setResult(Ti.Android.RESULT_OK, backIntent);
       //backActivity.finish();
 
