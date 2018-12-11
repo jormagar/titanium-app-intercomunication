@@ -49,7 +49,12 @@
    */
   function onActionClick(e) {
     const action = e.section.getItemAt(e.itemIndex).action.name;
-    ActionManager.execute(action, getActionParams(action));
+    $.index.activity.startActivity(Ti.Android.createIntent({
+      className: TARGET.CLASS_NAME,
+      packageName: TARGET.PACKAGE_NAME,
+      type: 'text/plain'
+    }));
+    //ActionManager.execute(action, getActionParams(action));
   }
 
   /**
