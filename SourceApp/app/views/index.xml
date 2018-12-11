@@ -18,7 +18,7 @@
 				<ListItem action:name="startActivity" action:text="Start target activity through intent" platform="android"/>
 				<ListItem action:name="startActivityForResult" action:text="Start target activity through intent and wait for result" platform="android"/>
 				<ListItem action:name="startAppByScheme" action:text="Start app using a url scheme"/>
-				<ListItem action:name="startAppBySchemeForResult" action:text="Start target by scheme for result"/>
+				<!--<ListItem action:name="startAppBySchemeForResult" action:text="Start target by scheme for result"/>-->
 			</ListSection>
 			<ListSection platform="android">
 				<HeaderView>
